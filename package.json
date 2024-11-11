@@ -1,0 +1,17 @@
+{
+  "name": "api-mvc",
+  "version": "1.0.0",
+  "description": "API REST FUll Express utilizando padrão MVC, aplicando conceitos do S.O.L.I.D ",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Gabriel Júnio P. Vogais",
+  "license": "ISC",
+  "devDependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "mysql2": "^3.11.4",
+    "nodemon": "^3.1.7"
+  }
+}
