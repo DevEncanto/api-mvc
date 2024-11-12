@@ -5,9 +5,8 @@ class LoteEtiquetas {
     }
 
     // Método estático para criar um novo produto com quantidade inicial de 0
-    static create(id_lote_etiqueta, criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final) {
+    static create(criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final) {
         return new LoteEtiquetas({
-            id_lote_etiqueta,
             criacao,
             semana_corte,
             semana_colheita,

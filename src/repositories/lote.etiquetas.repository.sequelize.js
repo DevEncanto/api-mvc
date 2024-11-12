@@ -1,10 +1,8 @@
-class LoteEtiquetasRepositorySequelize extends LoteEtiquetasRepository {
+class LoteEtiquetasRepositorySequelize {
     // Variáveis restritas à classe para mensagens de erro
     static ERROR_MODEL_REQUIRED = "É necessário fornecer uma model.";
-    static ERROR_METHOD_NOT_IMPLEMENTED = "Método 'create' não implementado.";
 
     constructor(model) {
-        super();
         this.model = model ? model : new Error(this.ERROR_MODEL_REQUIRED);
     }
 
@@ -12,11 +10,16 @@ class LoteEtiquetasRepositorySequelize extends LoteEtiquetasRepository {
         return model ? new LoteEtiquetasRepositorySequelize(model) : new Error(this.ERROR_MODEL_REQUIRED);
     }
 
-    async Pcreate() {
+    async create(lote_etiqueta) {
         const data = {
-
+            criacao: lote_etiqueta.criacao,
+            semana_corte: lote_etiqueta.semana_corte,
+            semana_colheita: lote_etiqueta.semana_colheita,
+            etiqueta_inicial: lote_etiqueta.etiqueta_inicial,
+            etiqueta_final: lote_etiqueta.etiqueta_final
         }
-
-        await this.model.create(data)
+        return await this.model.create(data)
     }
 }
+
+module.exports = LoteEtiquetasRepositorySequelize
