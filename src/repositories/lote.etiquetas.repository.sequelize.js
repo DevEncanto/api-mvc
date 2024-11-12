@@ -10,15 +10,33 @@ class LoteEtiquetasRepositorySequelize {
         return model ? new LoteEtiquetasRepositorySequelize(model) : new Error(this.ERROR_MODEL_REQUIRED);
     }
 
-    async create(lote_etiqueta) {
-        const data = {
-            criacao: lote_etiqueta.criacao,
-            semana_corte: lote_etiqueta.semana_corte,
-            semana_colheita: lote_etiqueta.semana_colheita,
-            etiqueta_inicial: lote_etiqueta.etiqueta_inicial,
-            etiqueta_final: lote_etiqueta.etiqueta_final
-        }
-        return await this.model.create(data)
+    async create(criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final) {
+
+        const { dataValues } = await this.model.create({
+            criacao: criacao,
+            semana_corte: semana_corte,
+            semana_colheita: semana_colheita,
+            etiqueta_inicial: etiqueta_inicial,
+            etiqueta_final: etiqueta_final
+        })
+
+        return dataValues
+    }
+
+    async findLoteSemanas(semana_corte, semana_colheita) {
+
+        const { Op } = require('sequelize');  // Certifique-se de importar o Op
+
+        const response = await this.model.findOne({
+            where: {
+                [Op.or]: [
+                    { semana_corte: semana_corte },
+                    { semana_colheita: semana_colheita }
+                ]
+            }
+        });
+
+        return response ? response.dataValues : null
     }
 }
 

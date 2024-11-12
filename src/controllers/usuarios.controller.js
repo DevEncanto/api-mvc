@@ -1,12 +1,13 @@
-const LoteEtiquetasRepositorySequelize = require("../repositories/lote.etiquetas.repository.sequelize");
-const LotesEtiquetasService = require("../services/lotes.etiquetas.service")
-const LoteEtiquetas = require("../sequelize/models/lotes.etiquetas.model")
+const UsuariosRepositorySequelize = require("../repositories/usuarios.repository.sequelize");
+const Usuarios = require("../sequelize/models/usuarios.model");
+const UsuariosService = require("../services/usuarios.service");
 
-class LoteEtiquetasController {
+
+class UsuariosController {
     constructor() { }
 
     static build() {
-        return new LoteEtiquetasController();
+        return new UsuariosController();
     }
 
     // Método que gera as rotas
@@ -55,16 +56,22 @@ class LoteEtiquetasController {
 
 
     async pCreate(req, res) {
-        const { criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final } = req.body;
-        const aRepository = LoteEtiquetasRepositorySequelize.build(LoteEtiquetas);
-        const aService = LotesEtiquetasService.build(aRepository)
+        res.status(status = 200).json(json = {}).send()
+    }
 
-        const { status, data, message } = await aService.create(
-            criacao,
-            semana_corte,
-            semana_colheita,
-            etiqueta_inicial,
-            etiqueta_final
+    async gList() {
+
+    }
+
+    async pLogin(req, res) {
+        const { usuario, senha } = req.body
+
+        const aRepository = UsuariosRepositorySequelize.build(Usuarios)
+        const aService = UsuariosService.build(aRepository)
+
+        const { status, data, message } = await aService.authenticate(
+            usuario,
+            senha
         );
 
         const json = {
@@ -74,10 +81,6 @@ class LoteEtiquetasController {
         
         res.status(status).json(json).send()
     }
-
-    async gList() {
-
-    }
 }
 
-module.exports = LoteEtiquetasController
+module.exports = UsuariosController

@@ -6,7 +6,7 @@ const banco_de_dados = {
         dialect: "mysql",
         pass: "NODE_PASS_LOCAL",
         user: "NODE_USER_LOCAL",
-        logging: false
+        logging: true
     },
     producao: {
         db: "NODE_DB_HOSTINGER",

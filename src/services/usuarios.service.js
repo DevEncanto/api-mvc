@@ -1,6 +1,8 @@
+const { compare } = require("../util/hash");
+const { gerarToken } = require("../util/jwt");
 const TryCatch = require("../util/try.catch")
 
-class LotesEtiquetasService {
+class UsuariosService {
 
     static ERROR_REPO = "É necessário fornecer uma model.";
 
@@ -9,10 +11,10 @@ class LotesEtiquetasService {
     }
 
     static build(repository) {
-        return repository ? new LotesEtiquetasService(repository) : new Error(this.ERROR_REPO)
+        return repository ? new UsuariosService(repository) : new Error(this.ERROR_REPO)
     }
 
-    async create(criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final) {
+    async create(usuario, senha) {
 
         let response
 
@@ -46,8 +48,45 @@ class LotesEtiquetasService {
             message: "Lote de Etiquetas cadastrado com sucesso!",
             data: response.data
         }
-        
+
+    }
+
+    async authenticate(usuario, senha) {
+        let [error, data] = [null, null];
+
+        ({ error, data } = await TryCatch(async () => {
+            return await this.repository.findUser(usuario)
+        }));
+
+        if (error || data == null) {
+            return res.json({
+                status: 401,
+                message: "Falha ao realizar o login!",
+                data: data
+            });
+        }
+
+        const senhaCorreta = await compare(senha, data.senha)
+
+        if (!senhaCorreta) {
+            return {
+                status: 405,
+                message: "Os dados fornecidos estão incorretos!",
+                data: ""
+            }
+        }
+
+        const token = await gerarToken(data.idUsuario);
+
+        return {
+            status: 200,
+            message: "Login realizado com sucesso",
+            data: {
+                token: token,
+                idUsuario: data.idUsuario
+            }
+        }
     }
 }
 
-module.exports = LotesEtiquetasService
+module.exports = UsuariosService
