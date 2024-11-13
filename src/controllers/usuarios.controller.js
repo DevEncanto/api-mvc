@@ -65,21 +65,21 @@ class UsuariosController {
 
     async pLogin(req, res) {
         const { usuario, senha } = req.body
-
         const aRepository = UsuariosRepositorySequelize.build(Usuarios)
         const aService = UsuariosService.build(aRepository)
 
-        const { status, data, message } = await aService.authenticate(
+        const { statusResponse, statusRequest, data, message } = await aService.authenticate(
             usuario,
             senha
         );
 
         const json = {
-            data: { ...data },
-            message: message
+            ...data,
+            message: message,
+            status: statusResponse
         }
-        
-        res.status(status).json(json).send()
+
+        res.status(statusRequest).json(json).send()
     }
 }
 

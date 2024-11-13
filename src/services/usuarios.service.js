@@ -24,7 +24,8 @@ class UsuariosService {
 
         if (response.data) {
             return {
-                status: 401,
+                statusRequest: 200,
+                statusResonse: 401,
                 message: "Já existe um lote de etiquetas com as semanas informadas!",
                 data: response.data
             }
@@ -37,14 +38,16 @@ class UsuariosService {
 
         if (response.error) {
             return {
-                status: 404,
+                statusRequest: 200,
+                statusResonse: 404,
                 message: "Não foi possível cadastrar o lote de etiquetas!",
                 data: response.data
             }
         }
 
         return {
-            status: 200,
+            statusRequest: 200,
+            statusResonse: 200,
             message: "Lote de Etiquetas cadastrado com sucesso!",
             data: response.data
         }
@@ -52,6 +55,8 @@ class UsuariosService {
     }
 
     async authenticate(usuario, senha) {
+        console.log(usuario, senha)
+
         let [error, data] = [null, null];
 
         ({ error, data } = await TryCatch(async () => {
@@ -60,17 +65,20 @@ class UsuariosService {
 
         if (error || data == null) {
             return res.json({
-                status: 401,
+                statusRequest: 200,
+                statusResonse: 401,
                 message: "Falha ao realizar o login!",
                 data: data
             });
         }
 
+        console.log(senha, data.senha)
         const senhaCorreta = await compare(senha, data.senha)
 
         if (!senhaCorreta) {
             return {
-                status: 405,
+                statusRequest: 200,
+                statusResonse: 402,
                 message: "Os dados fornecidos estão incorretos!",
                 data: ""
             }
@@ -79,7 +87,8 @@ class UsuariosService {
         const token = await gerarToken(data.idUsuario);
 
         return {
-            status: 200,
+            statusRequest: 200,
+            statusResonse: 200,
             message: "Login realizado com sucesso",
             data: {
                 token: token,
