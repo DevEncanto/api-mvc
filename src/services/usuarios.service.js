@@ -72,7 +72,6 @@ class UsuariosService {
             });
         }
 
-        console.log(senha, data.senha)
         const senhaCorreta = await compare(senha, data.senha)
 
         if (!senhaCorreta) {

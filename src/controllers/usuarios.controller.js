@@ -73,9 +73,14 @@ class UsuariosController {
             senha
         );
 
+        const creationTimestamp = Date.now()
+        const expirationTimestamp = creationTimestamp + (40 * 60 * 1000)
+
         const json = {
             ...data,
             message: message,
+            creationTimestamp,
+            expirationTimestamp,
             status: statusResponse
         }
 

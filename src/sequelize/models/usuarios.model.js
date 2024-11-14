@@ -22,7 +22,7 @@ const Usuario = database.define('usuarios', {
 
 Usuario.belongsTo(Pessoa, {
     constraint: true,
-    foreignKey: "id_pessoa"
+    foreignKey: "id_pessoa" 
 })
 
 
