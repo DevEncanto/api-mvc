@@ -45,7 +45,7 @@ class UsuariosService {
             }
         }
 
-       
+
         return {
             statusRequest: 200,
             statusResonse: 200,
@@ -55,7 +55,7 @@ class UsuariosService {
 
     }
 
-    async authenticate(usuario, senha) {
+    async authenticate(usuario = "", senha = "") {
         console.log(usuario, senha)
 
         let [error, data] = [null, null];
@@ -99,6 +99,19 @@ class UsuariosService {
                 expirationTimestamp
             }
         }
+    }
+
+    async inicialData(repository, joinModel) {
+        let [error, data] = [null, null];
+
+        ({ error, data } = await TryCatch(async () => {
+            return await repository.findAll(joinModel)
+        }));
+
+        let initial = {
+            lotes_etiquetas: error || !data ? [] : data
+        }
+        return initial
     }
 }
 

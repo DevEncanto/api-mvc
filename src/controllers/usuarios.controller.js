@@ -1,7 +1,10 @@
 const UsuariosRepositorySequelize = require("../repositories/usuarios.repository.sequelize");
 const Usuarios = require("../sequelize/models/usuarios.model");
 const UsuariosService = require("../services/usuarios.service");
-
+const LoteEtiquetasRepositorySequelize = require("../repositories/lote.etiquetas.repository.sequelize");
+const LotesEtiquetasService = require("../services/lotes.etiquetas.service")
+const LoteEtiquetas = require("../sequelize/models/lotes.etiquetas.model");
+const Etiquetas = require("../sequelize/models/etiquetas.model");
 
 class UsuariosController {
     constructor() { }
@@ -64,19 +67,24 @@ class UsuariosController {
     }
 
     async pLogin(req, res) {
+        console.log(req.body)
+
         const { usuario, senha } = req.body
         const aRepository = UsuariosRepositorySequelize.build(Usuarios)
         const aService = UsuariosService.build(aRepository)
+        const bRepository = LoteEtiquetasRepositorySequelize.build(LoteEtiquetas)
 
         const { statusResponse, statusRequest, data, message } = await aService.authenticate(
             usuario,
             senha
         );
 
-        
+        const initial = await aService.inicialData(bRepository, Etiquetas)
+
 
         const json = {
             ...data,
+            dataInitial: initial,
             message: message,
             status: statusResponse
         }
