@@ -10,34 +10,32 @@ class LoteEtiquetasRepositorySequelize {
         return model ? new LoteEtiquetasRepositorySequelize(model) : new Error(this.ERROR_MODEL_REQUIRED);
     }
 
-    async create(criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final) {
+    async create(lote_etiqueta) {
 
-        const { dataValues } = await this.model.create({
-            criacao: criacao,
-            semana_corte: semana_corte,
-            semana_colheita: semana_colheita,
-            etiqueta_inicial: etiqueta_inicial,
-            etiqueta_final: etiqueta_final
-        })
+        const { dataValues } = await this.model.create(lote_etiqueta)
 
         return dataValues
     }
 
-    async findLoteSemanas(semana_corte, semana_colheita) {
-
-        const { Op } = require('sequelize');  // Certifique-se de importar o Op
-
+    async findLoteSemanas(ano_colheita, ano_corte, semana_corte, semana_colheita) {
+        const { Op } = require('sequelize'); // Certifique-se de importar o Op
+      
+        // Realizando a busca usando `Op.and` para combinar as condições
         const response = await this.model.findOne({
-            where: {
-                [Op.or]: [
-                    { semana_corte: semana_corte },
-                    { semana_colheita: semana_colheita }
-                ]
-            }
+          where: {
+            [Op.and]: [
+              { semana_corte: semana_corte },
+              { semana_colheita: semana_colheita },
+              { ano_corte: ano_corte },
+              { ano_colheita: ano_colheita } // Adiciona a condição para o ano_colheita
+            ]
+          }
         });
-
-        return response ? response.dataValues : null
-    }
+      
+        // Retorna os valores ou null se não houver nenhum resultado
+        return response ? response.dataValues : null;
+      }
+      
 }
 
 module.exports = LoteEtiquetasRepositorySequelize

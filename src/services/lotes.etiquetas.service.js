@@ -12,41 +12,46 @@ class LotesEtiquetasService {
         return repository ? new LotesEtiquetasService(repository) : new Error(this.ERROR_REPO)
     }
 
-    async create(criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final) {
+    async create(lote_etiqueta) {
+
+        const {ano_colheita, ano_corte, semana_corte, semana_colheita} =lote_etiqueta
 
         let response
 
         response = await TryCatch(async () => {
-            return await this.repository.findLoteSemanas(semana_corte, semana_colheita)
+            return await this.repository.findLoteSemanas(ano_colheita, ano_corte, semana_corte, semana_colheita)
         })
 
         if (response.data) {
             return {
-                status: 401,
-                message: "Já existe um lote de etiquetas com as semanas informadas!",
+                statusRequest: 200,
+                statusResponse: 401,
+                message: "O lote informado já existe!",
                 data: response.data
             }
         }
 
 
         response = await TryCatch(async () => {
-            return await this.repository.create(criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final)
+            return await this.repository.create(lote_etiqueta)
         })
 
         if (response.error) {
             return {
-                status: 404,
+                statusRequest: 200,
+                statusResponse: 404,
                 message: "Não foi possível cadastrar o lote de etiquetas!",
                 data: response.data
             }
         }
 
         return {
-            status: 200,
+            statusRequest: 200,
+            statusResponse: 200,
             message: "Lote de Etiquetas cadastrado com sucesso!",
             data: response.data
         }
-        
+
     }
 }
 

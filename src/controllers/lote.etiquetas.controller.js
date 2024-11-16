@@ -1,6 +1,9 @@
 const LoteEtiquetasRepositorySequelize = require("../repositories/lote.etiquetas.repository.sequelize");
 const LotesEtiquetasService = require("../services/lotes.etiquetas.service")
-const LoteEtiquetas = require("../sequelize/models/lotes.etiquetas.model")
+const LoteEtiquetas = require("../sequelize/models/lotes.etiquetas.model");
+const Etiquetas = require("../sequelize/models/etiquetas.model");
+const EtiquetasRepositorySequelize = require("../repositories/etiquetas.repository");
+const EtiquetasService = require("../services/etiquetas.service");
 
 class LoteEtiquetasController {
     constructor() { }
@@ -55,24 +58,33 @@ class LoteEtiquetasController {
 
 
     async pCreate(req, res) {
-        const { criacao, semana_corte, semana_colheita, etiqueta_inicial, etiqueta_final } = req.body;
         const aRepository = LoteEtiquetasRepositorySequelize.build(LoteEtiquetas);
         const aService = LotesEtiquetasService.build(aRepository)
+        const lote_etiqueta = req.body
+        let response = await aService.create(lote_etiqueta);
 
-        const { status, data, message } = await aService.create(
-            criacao,
-            semana_corte,
-            semana_colheita,
-            etiqueta_inicial,
-            etiqueta_final
-        );
+        let lote_etiquetas ={
+            ...response.data,
+            etiquetas: []
+        }
+
+        if (response.statusResponse === 200) {
+            const bRepository = EtiquetasRepositorySequelize.build(Etiquetas);
+            const bService = EtiquetasService.build(bRepository)
+            const id_lote_etiqueta = response.data.id_lote_etiqueta
+
+            response = await bService.create(lote_etiqueta, id_lote_etiqueta)
+            const etiquetas = await bService.list(lote_etiquetas.id_lote_etiqueta)
+            lote_etiquetas.etiquetas = etiquetas
+        }
 
         const json = {
-            data: { ...data },
-            message: message
+            data: lote_etiquetas,
+            message: response.message,
+            status: response.statusResponse
         }
-        
-        res.status(status).json(json).send()
+
+        res.status(response.statusRequest).json(json).send()
     }
 
     async gList() {

@@ -45,6 +45,7 @@ class UsuariosService {
             }
         }
 
+       
         return {
             statusRequest: 200,
             statusResonse: 200,
@@ -77,21 +78,25 @@ class UsuariosService {
         if (!senhaCorreta) {
             return {
                 statusRequest: 200,
-                statusResonse: 402,
+                statusResponse: 402,
                 message: "Os dados fornecidos estão incorretos!",
                 data: ""
             }
         }
 
+        const creationTimestamp = Date.now()
+        const expirationTimestamp = creationTimestamp + (40 * 60 * 1000)
         const token = await gerarToken(data.idUsuario);
 
         return {
             statusRequest: 200,
-            statusResonse: 200,
+            statusResponse: 200,
             message: "Login realizado com sucesso",
             data: {
                 token: token,
-                idUsuario: data.idUsuario
+                id_usuario: data.id_usuario,
+                creationTimestamp,
+                expirationTimestamp
             }
         }
     }
