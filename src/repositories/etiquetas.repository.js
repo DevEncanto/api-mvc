@@ -25,6 +25,20 @@ class EtiquetasRepositorySequelize {
         })
     }
 
+    async findAllWhere(where) {
+        return await this.model.findAll({
+            where: where
+        })
+    }
+
+    async delete(id_lote_etiqueta) {
+        return await this.model.delete({
+            where: {
+                id_lote_etiqueta
+            }
+        })
+    }
+
 }
 
 module.exports = EtiquetasRepositorySequelize

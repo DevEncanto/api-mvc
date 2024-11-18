@@ -90,6 +90,19 @@ class LoteEtiquetasController {
     async gList() {
 
     }
+
+    async pUpdate(req, res){
+        const aRepository = LoteEtiquetasRepositorySequelize.build(LoteEtiquetas);
+        const aService = LotesEtiquetasService.build(aRepository)
+        const lote_etiqueta = req.body
+        let response = await aService.update(lote_etiqueta);
+        const json = {
+            data: [],
+            message: response.message,
+            status: response.statusResponse
+        }
+        res.status(response.statusRequest).json(json).send()
+    }
 }
 
 module.exports = LoteEtiquetasController
