@@ -46,7 +46,7 @@ class LoteEtiquetasRepositorySequelize {
     return response ? response : [];
   }
 
-  async finOne(id_lote_etiqueta) {
+  async findOne(id_lote_etiqueta) {
     return await this.model.findOne({
       where: {
         id_lote_etiqueta
@@ -54,6 +54,13 @@ class LoteEtiquetasRepositorySequelize {
     })
   }
 
+  async update(lote_etiqueta) {
+    return await this.model.update(lote_etiqueta, {
+      where: {
+        id_lote_etiqueta: lote_etiqueta.id_lote_etiqueta
+      }
+    })
+  }
 }
 
 module.exports = LoteEtiquetasRepositorySequelize

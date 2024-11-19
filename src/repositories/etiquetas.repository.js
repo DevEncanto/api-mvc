@@ -39,6 +39,27 @@ class EtiquetasRepositorySequelize {
         })
     }
 
+    async bulkUpdate(lotes_etiquetas = []) {
+    
+        for (const lote_etiqueta of lotes_etiquetas) {
+
+            const { acao, etiqueta } = lote_etiqueta
+
+            if (acao === "remover") {
+                await this.model.destroy({
+                    where: {
+                        id_lote_etiqueta: parseInt(etiqueta.id_lote_etiqueta),
+                        etiqueta: etiqueta.etiqueta
+                    }
+                })
+            }
+            if (acao === "adicionar") {
+                await this.model.create(etiqueta)
+            }
+        }
+        return []
+    }
+
 }
 
 module.exports = EtiquetasRepositorySequelize

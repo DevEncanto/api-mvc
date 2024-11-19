@@ -63,20 +63,6 @@ class LotesEtiquetasService {
         const { id_lote_etiqueta, ano_colheita, ano_corte, semana_corte, semana_colheita } = lt1
         const aRepository = new EtiquetasRepositorySequelize(Etiquetas)
 
-        response = await TryCatch(async () => {
-            return await this.repository.findLoteSemanas(ano_colheita, ano_corte, semana_corte, semana_colheita)
-        })
-
-        if (response.data) {
-            return {
-                statusRequest: 200,
-                statusResponse: 401,
-                message: "O lote informado já existe!",
-                data: response.data
-            }
-        }
-
-
         const where = {
             [Op.and]: [
                 { id_lote_etiqueta: id_lote_etiqueta },  // Adicionando a condição para o campo id_lote_etiqueta
@@ -98,35 +84,51 @@ class LotesEtiquetasService {
         }
 
         const etiquetas_lote = response.data
-        const lt2 = await this.repository.finOne(id_lote_etiqueta)
+        const lt2 = await this.repository.findOne(id_lote_etiqueta)
 
-        console.log("=============EDIÇÃO=============")
-        console.log("Etiqueta Encontradas!")
-        console.log(JSON.parse(JSON.stringify(etiquetas_lote)))
-        console.log(JSON.parse(JSON.stringify(lt1)))
-        console.log(JSON.parse(JSON.stringify(lt2)))
+        response = this.generateEtiquetas(id_lote_etiqueta, lt1, lt2, etiquetas_lote)
 
-        const total_lt1 = lt1.etiqueta_final - lt1.etiqueta_inicial + 1
-        const total_lt2 = lt2.etiqueta_final - lt2.etiqueta_inicial + 1
+        console.log(response)
 
-        console.log(`Total lt1: ${total_lt1}`)
-        console.log(`Total lt2: ${total_lt2}`)
 
-        if (total_lt1 === total_lt2) {
-            console.log("Nenhuma Alteração")
+
+        if (response.error) {
+            return {
+                statusRequest: 200,
+                statusResponse: 402,
+                message: "Não foi possível editar o lote de etiquetas!",
+                data: []
+            }
         }
 
-        if (total_lt1 > total_lt2) {
-            console.log("Aumentar Etiquetas")
-            
-            console.log("Etiqueta Complementares!")
-            console.log(this.generateEtiquetasIncrement(id_lote_etiqueta, lt1, lt2))
-        }
-        if (total_lt1 < total_lt2) {
-            console.log("Diminuir Etiquetas")
-            console.log(this.generateEtiquetasIncrement(id_lote_etiqueta, lt1, lt2))
+        const etiquetas = response.etiquetas
+
+        response = await TryCatch(async () => {
+            return await this.repository.update(lt1)
+        })
+
+        if (response.error) {
+            return {
+                statusRequest: 200,
+                statusResponse: 403,
+                message: "Não foi possível editar o lote de etiquetas!",
+                data: response.data
+            }
         }
 
+        JSON.stringify(etiquetas)
+        response = await TryCatch(async () => {
+            return await aRepository.bulkUpdate(etiquetas)
+        })
+
+        if (response.error) {
+            return {
+                statusRequest: 200,
+                statusResponse: 404,
+                message: "Não foi possível editar o lote de etiquetas!",
+                data: response.data
+            }
+        }
 
         return {
             statusRequest: 200,
@@ -135,54 +137,82 @@ class LotesEtiquetasService {
             data: response.data
         }
     }
-    generateEtiquetasIncrement(id_lote_etiqueta, lt1, lt2){
 
-        let etiquetasComplementares = []
-        
-        for (let i = lt1.etiqueta_inicial; i == 0; i--) {
-            etiquetasComplementares.push()
+    generateEtiquetas(id_lote_etiqueta, lt1, lt2, etiquetasInformadas) {
+        let etiquetasComplementares = [];
+        let data = {
+            error: false,
+            etiquetas: []
         }
-        for (let j = lt2.etiqueta_final + 1; j <= lt1.etiqueta_final; j++) {
-            etiquetasComplementares.push({
-                id_lote_etiqueta,
-                etiqueta: String(j).padStart(4, '0'),
-                data: lt2.criacao,
-                semana_colheita: lt2.semana_colheita,
-                longitude: 0,
-                latitude: 0
-            })
+        // Etiquetas a serem removidas (estão em lt2, mas não em lt1)
+        for (let i = lt2.etiqueta_inicial; i <= lt2.etiqueta_final; i++) {
+            if (i < lt1.etiqueta_inicial || i > lt1.etiqueta_final) {
+                // A etiqueta está no lote editado, mas não no lote original
+                etiquetasComplementares.push({
+                    acao: 'remover',
+                    etiqueta: {
+                        id_lote_etiqueta,
+                        etiqueta: String(i).padStart(4, '0'),
+                        data: lt2.criacao,
+                        semana_colheita: lt2.semana_colheita,
+                        longitude: 0,
+                        latitude: 0
+                    }  // Agora a etiqueta será removida
+                });
+            }
         }
-        return etiquetasComplementares
+
+        // Etiquetas a serem adicionadas (estão em lt1, mas não em lt2)
+        for (let i = lt1.etiqueta_inicial; i <= lt1.etiqueta_final; i++) {
+            if (i < lt2.etiqueta_inicial || i > lt2.etiqueta_final) {
+                // A etiqueta está no lote original, mas não no lote editado
+                etiquetasComplementares.push({
+                    acao: 'adicionar',
+                    etiqueta: {
+                        id_lote_etiqueta,
+                        etiqueta: String(i).padStart(4, '0'),
+                        data: lt1.criacao,
+                        semana_colheita: lt1.semana_colheita,
+                        longitude: 0,
+                        latitude: 0,
+                    }  // Agora a etiqueta será adicionada
+                });
+            }
+        }
+
+        // Resolver conflitos de adição e remoção para a mesma etiqueta
+        let etiquetasMap = new Map();
+
+        etiquetasComplementares.forEach(etiqueta => {
+            if (etiquetasMap.has(etiqueta.etiqueta)) {
+                let existingEtiqueta = etiquetasMap.get(etiqueta.etiqueta);
+
+                // Se a etiqueta foi marcada para adicionar e remover, a prioridade é remover.
+                // Se uma etiqueta foi removida no lote original mas aparece no lote editado, deve ser adicionada.
+                if (existingEtiqueta.acao === 'adicionar' && etiqueta.acao === 'remover') {
+                    existingEtiqueta.acao = 'remover';
+                } else if (existingEtiqueta.acao === 'remover' && etiqueta.acao === 'adicionar') {
+                    existingEtiqueta.acao = 'adicionar';
+                }
+            } else {
+                etiquetasMap.set(etiqueta.etiqueta, etiqueta);
+            }
+        });
+
+        data.etiquetas = Array.from(etiquetasMap.values());
+
+        // Filtra as etiquetas removidas que já estão em uso e não permite a edição
+        const etiquetasRemovidasSet = new Set(etiquetasInformadas.map(e => e.etiqueta));
+        const etiquetasEmUso = data.etiquetas.filter(etiqueta => etiqueta.acao === 'remover' && etiquetasRemovidasSet.has(etiqueta.etiqueta));
+
+        if (etiquetasEmUso.length > 0) {
+            data.error = true
+        }
+        JSON.stringify(data)
+        return data;
     }
 
-    generateEtiquetasDecrement(id_lote_etiqueta, lt1, lt2){
-        let etiquetasComplementares = []
-        
-        for (let i = lt1.etiqueta_inicial; i == 0; i--) {
-            etiquetasComplementares.push({
-                id_lote_etiqueta,
-                etiqueta: String(i).padStart(4, '0'),
-                data: lt1.criacao,
-                semana_colheita: lt1.semana_colheita,
-                longitude: 0,
-                latitude: 0
-            })
-        }
-        console.log(lt1.etiqueta_final)
-        console.log(lt2.etiqueta_final)
-        for (let j = lt2.etiqueta_final; j > lt1.etiqueta_final; j--) {
-            console.log(j)
-            etiquetasComplementares.push({
-                id_lote_etiqueta,
-                etiqueta: String(j).padStart(4, '0'),
-                data: lt2.criacao,
-                semana_colheita: lt2.semana_colheita,
-                longitude: 0,
-                latitude: 0
-            })
-        }
-        return etiquetasComplementares
-    }
+
 
 
 }
