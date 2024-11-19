@@ -118,9 +118,13 @@ class LotesEtiquetasService {
 
         if (total_lt1 > total_lt2) {
             console.log("Aumentar Etiquetas")
+            
+            console.log("Etiqueta Complementares!")
+            console.log(this.generateEtiquetasIncrement(id_lote_etiqueta, lt1, lt2))
         }
         if (total_lt1 < total_lt2) {
             console.log("Diminuir Etiquetas")
+            console.log(this.generateEtiquetasIncrement(id_lote_etiqueta, lt1, lt2))
         }
 
 
@@ -131,7 +135,54 @@ class LotesEtiquetasService {
             data: response.data
         }
     }
+    generateEtiquetasIncrement(id_lote_etiqueta, lt1, lt2){
 
+        let etiquetasComplementares = []
+        
+        for (let i = lt1.etiqueta_inicial; i == 0; i--) {
+            etiquetasComplementares.push()
+        }
+        for (let j = lt2.etiqueta_final + 1; j <= lt1.etiqueta_final; j++) {
+            etiquetasComplementares.push({
+                id_lote_etiqueta,
+                etiqueta: String(j).padStart(4, '0'),
+                data: lt2.criacao,
+                semana_colheita: lt2.semana_colheita,
+                longitude: 0,
+                latitude: 0
+            })
+        }
+        return etiquetasComplementares
+    }
+
+    generateEtiquetasDecrement(id_lote_etiqueta, lt1, lt2){
+        let etiquetasComplementares = []
+        
+        for (let i = lt1.etiqueta_inicial; i == 0; i--) {
+            etiquetasComplementares.push({
+                id_lote_etiqueta,
+                etiqueta: String(i).padStart(4, '0'),
+                data: lt1.criacao,
+                semana_colheita: lt1.semana_colheita,
+                longitude: 0,
+                latitude: 0
+            })
+        }
+        console.log(lt1.etiqueta_final)
+        console.log(lt2.etiqueta_final)
+        for (let j = lt2.etiqueta_final; j > lt1.etiqueta_final; j--) {
+            console.log(j)
+            etiquetasComplementares.push({
+                id_lote_etiqueta,
+                etiqueta: String(j).padStart(4, '0'),
+                data: lt2.criacao,
+                semana_colheita: lt2.semana_colheita,
+                longitude: 0,
+                latitude: 0
+            })
+        }
+        return etiquetasComplementares
+    }
 
 
 }
