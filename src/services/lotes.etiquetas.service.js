@@ -88,10 +88,6 @@ class LotesEtiquetasService {
 
         response = this.generateEtiquetas(id_lote_etiqueta, lt1, lt2, etiquetas_lote)
 
-        console.log(response)
-
-
-
         if (response.error) {
             return {
                 statusRequest: 200,
@@ -116,7 +112,6 @@ class LotesEtiquetasService {
             }
         }
 
-        JSON.stringify(etiquetas)
         response = await TryCatch(async () => {
             return await aRepository.bulkUpdate(etiquetas)
         })

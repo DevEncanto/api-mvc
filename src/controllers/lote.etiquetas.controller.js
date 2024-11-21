@@ -63,7 +63,7 @@ class LoteEtiquetasController {
         const lote_etiqueta = req.body
         let response = await aService.create(lote_etiqueta);
 
-        let lote_etiquetas ={
+        let lote_etiquetas = {
             ...response.data,
             etiquetas: []
         }
@@ -91,13 +91,21 @@ class LoteEtiquetasController {
 
     }
 
-    async pUpdate(req, res){
+    async pUpdate(req, res) {
         const aRepository = LoteEtiquetasRepositorySequelize.build(LoteEtiquetas);
         const aService = LotesEtiquetasService.build(aRepository)
         const lote_etiqueta = req.body
         let response = await aService.update(lote_etiqueta);
+
+        if (response.statusResponse === 200) {
+            const bRepository = EtiquetasRepositorySequelize.build(Etiquetas);
+            const bService = EtiquetasService.build(bRepository)
+            const etiquetas = await bService.list(lote_etiqueta.id_lote_etiqueta)
+            lote_etiqueta.etiquetas = etiquetas
+        }
+
         const json = {
-            data: [],
+            data: lote_etiqueta,
             message: response.message,
             status: response.statusResponse
         }
