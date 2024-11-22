@@ -14,6 +14,7 @@ const Etiquetas = database.define('etiquetas', {
         primaryKey: true
     },
     data: Sequelize.STRING(15),
+    id_area: Sequelize.INTEGER,
     semana_colheita: Sequelize.INTEGER,
     etiqueta: Sequelize.STRING(7),
     status: {
@@ -21,7 +22,11 @@ const Etiquetas = database.define('etiquetas', {
         type: Sequelize.STRING(30)
     },
     latitude: Sequelize.DOUBLE,
-    longitude: Sequelize.DOUBLE
+    longitude: Sequelize.DOUBLE,
+    previsao_kg: {
+        defaultValue: 0,
+        type: Sequelize.INTEGER
+    }
 })
 
 
