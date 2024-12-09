@@ -9,12 +9,17 @@ const { hash } = require("./src/util/hash");
     const Permissoes = require("./src/sequelize/models/permissoes.model")
     const Permissoes_Usuarios = require("./src/sequelize/models/permissoes.usuarios.model")
     const Pessoas = require("./src/sequelize/models/pessoas.model")
+    const StatusEtiquetas = require("./src/sequelize/models/status.etiquetas.model")
+    await database.sync({ force: true })
 
-    await database.sync({force: true})
-    console.log("Oi")
     await Usuarios.create({
         usuario: "gabriel_vogais",
         senha: await hash("teste")
+    })
+    
+
+    await StatusEtiquetas.create({
+        nome: "SEM USO"
     })
     console.log("Executei")
     process.exit(0)

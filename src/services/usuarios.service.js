@@ -101,11 +101,11 @@ class UsuariosService {
         }
     }
 
-    async inicialData(repository, joinModel) {
+    async inicialData(repository) {
         let [error, data] = [null, null];
 
         ({ error, data } = await TryCatch(async () => {
-            return await repository.findAll(joinModel)
+            return await repository.findAll()
         }));
 
         let initial = {

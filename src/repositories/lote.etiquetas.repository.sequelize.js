@@ -1,3 +1,5 @@
+const findAllLotesComEtiquetas = require('../sequelize/querys/lotes.etiquetas.com.status');
+
 class LoteEtiquetasRepositorySequelize {
   // Variáveis restritas à classe para mensagens de erro
   static ERROR_MODEL_REQUIRED = "É necessário fornecer uma model.";
@@ -35,13 +37,8 @@ class LoteEtiquetasRepositorySequelize {
     // Retorna os valores ou null se não houver nenhum resultado
     return response ? response.dataValues : null;
   }
-  async findAll(joinModel) {
-    const response = await this.model.findAll({
-      include: [{
-        model: joinModel,
-        required: true,  // Se você quiser lotes que não têm etiquetas, use false. Se quiser apenas os que têm, use true
-      }],
-    })
+  async findAll() {
+    const response = await findAllLotesComEtiquetas()
 
     return response ? response : [];
   }

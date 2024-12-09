@@ -79,7 +79,7 @@ class UsuariosController {
             senha
         );
 
-        const initial = await aService.inicialData(bRepository, Etiquetas)
+        const initial = await aService.inicialData(bRepository)
 
 
         const json = {
